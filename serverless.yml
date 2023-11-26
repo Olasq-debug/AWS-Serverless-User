@@ -1,0 +1,43 @@
+service: aws-serverless-user
+frameworkVersion: '3'
+
+#AWS provider configuration
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-east-1:857699535353:table/UserTable
+
+#Serverless functions handler and routes
+functions:
+  register:
+    handler: src/register.handler
+    events:
+      - http:
+          path: /register
+          method: POST
+      - http:
+          path: /login
+          method: POST
+
+#Resources to configure DynamoDb
+resources:
+  Resources:
+    TodoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: UserTable
+        BillingMode: PAY_PER_REQUEST
+
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
